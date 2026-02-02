@@ -1,8 +1,6 @@
 # Dependencies
 node_modules/
 
-# Build output
-
 # Environment variables
 .env
 .env.local
@@ -18,3 +16,6 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Vercel
+.vercel

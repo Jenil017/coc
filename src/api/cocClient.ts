@@ -10,12 +10,9 @@ import type {
 } from '@/types/coc';
 
 // Clash of Clans API Configuration
-// Using Vite proxy to avoid CORS issues
+// Uses Vercel serverless function at /api/coc
+// Path to CoC API endpoint is passed via query parameter
 const BASE_URL = '/api/coc';
-
-// IMPORTANT: API token is now handled by the Vite proxy server
-// This keeps the token secure and avoids CORS issues
-// The token is defined in vite.config.ts
 
 // Clan tag for the dashboard (URL-encoded)
 const CLAN_TAG = '%232GQLU8YLP';
@@ -79,30 +76,30 @@ cocClient.interceptors.response.use(
 
 // Clan API functions
 export const getClanInfo = async (): Promise<Clan> => {
-  const response = await cocClient.get<Clan>(`/clans/${CLAN_TAG}`);
+  const response = await cocClient.get<Clan>(`?path=${encodeURIComponent(`clans/${CLAN_TAG}`)}`);
   return response.data;
 };
 
 export const getClanMembers = async (): Promise<ClanMember[]> => {
-  const response = await cocClient.get<{ items: ClanMember[] }>(`/clans/${CLAN_TAG}/members`);
+  const response = await cocClient.get<{ items: ClanMember[] }>(`?path=${encodeURIComponent(`clans/${CLAN_TAG}/members`)}`);
   return response.data.items;
 };
 
 // War API functions
 export const getCurrentWar = async (): Promise<CurrentWar> => {
-  const response = await cocClient.get<CurrentWar>(`/clans/${CLAN_TAG}/currentwar`);
+  const response = await cocClient.get<CurrentWar>(`?path=${encodeURIComponent(`clans/${CLAN_TAG}/currentwar`)}`);
   return response.data;
 };
 
 export const getWarLog = async (limit: number = 50): Promise<WarLog> => {
-  const response = await cocClient.get<WarLog>(`/clans/${CLAN_TAG}/warlog?limit=${limit}`);
+  const response = await cocClient.get<WarLog>(`?path=${encodeURIComponent(`clans/${CLAN_TAG}/warlog?limit=${limit}`)}`);
   return response.data;
 };
 
 // CWL API functions
 export const getCWLGroup = async (): Promise<ClanWarLeagueGroup | null> => {
   try {
-    const response = await cocClient.get<ClanWarLeagueGroup>(`/clans/${CLAN_TAG}/currentwar/leaguegroup`);
+    const response = await cocClient.get<ClanWarLeagueGroup>(`?path=${encodeURIComponent(`clans/${CLAN_TAG}/currentwar/leaguegroup`)}`);
     return response.data;
   } catch (error: any) {
     if (error.response?.status === 404) {
@@ -115,22 +112,14 @@ export const getCWLGroup = async (): Promise<ClanWarLeagueGroup | null> => {
 
 // Capital Raid API functions
 export const getCapitalRaidSeasons = async (limit: number = 10): Promise<CapitalRaidSeason[]> => {
-  try {
-    const response = await cocClient.get<{ items: CapitalRaidSeason[] }>(`/clans/${CLAN_TAG}/capitalraidseasons?limit=${limit}`);
-    return response.data.items;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      return [];
-    }
-    throw error;
-  }
+  const response = await cocClient.get<{ items: CapitalRaidSeason[] }>(`?path=${encodeURIComponent(`clans/${CLAN_TAG}/capitalraidseasons?limit=${limit}`)}`);
+  return response.data.items;
 };
 
 // Player API functions
 export const getPlayerInfo = async (playerTag: string): Promise<Player> => {
-  // Ensure player tag is URL-encoded
-  const encodedTag = playerTag.startsWith('#') ? `%23${playerTag.slice(1)}` : playerTag;
-  const response = await cocClient.get<Player>(`/players/${encodedTag}`);
+  const encodedTag = encodeURIComponent(playerTag);
+  const response = await cocClient.get<Player>(`?path=${encodeURIComponent(`players/${encodedTag}`)}`);
   return response.data;
 };
 
