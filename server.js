@@ -69,7 +69,7 @@ app.get('/api/coc/', async (req, res) => {
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Handle client-side routing - serve index.html for all other routes
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
